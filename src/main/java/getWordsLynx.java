@@ -1,6 +1,3 @@
-/**
- * Created by zhangzhiwang on 10/29/16.
- */
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Set;

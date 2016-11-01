@@ -1,21 +1,16 @@
 import org.apache.commons.codec.binary.Base64;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.w3c.dom.Document;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.InputStream;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 public class BingResult {
     private static final int NUMBER = 4;
@@ -46,15 +41,15 @@ public class BingResult {
         doc.getDocumentElement().normalize();
         NodeList entry_list = doc.getElementsByTagName("entry");
 
-        assert(entry_list.getLength() <= NUMBER + 1);
+        assert (entry_list.getLength() <= NUMBER + 1);
 
         String[] ret = new String[entry_list.getLength()];
         List<String> list = new ArrayList<>();
-        for(int i = 1; i < entry_list.getLength(); i++) {
+        for (int i = 1; i < entry_list.getLength(); i++) {
             Node entry = entry_list.item(i);
-            Element ele_entry = (Element)entry;
+            Element ele_entry = (Element) entry;
             NodeList url_list = ele_entry.getElementsByTagName("d:Url");
-            Element ele_url = (Element)url_list.item(0);
+            Element ele_url = (Element) url_list.item(0);
             NodeList urls = ele_url.getChildNodes();
             list.add(urls.item(0).getNodeValue().trim().replaceAll("<b>", "").replaceAll("</b>", ""));
         }
