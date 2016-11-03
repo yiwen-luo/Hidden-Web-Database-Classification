@@ -17,12 +17,11 @@ public class Main {
         host = "";
         root = null;
     }
-//IOException, InterruptedException, ExecutionException
+
     public static void main(String[] args) throws Exception {
         if (args.length != 4) {
             throw new IllegalArgumentException("Input format <BING_ACCOUNT_KEY> <t_es> <t_ec> <host>");
         }
-        String debug_level = System.getenv().get("DEBUG");
 
         bingKey = args[0];
         tes  = Double.valueOf(args[1]);
@@ -37,6 +36,7 @@ public class Main {
         BingHandler bingHandler = new BingHandler();
         Classifier classifier = new Classifier(bingHandler, tes, tec);
         List<Map.Entry<String, Category>> resultChain = classifier.classify(root);
+        System.out.println();
         System.out.print("Site classified as Root");
         for(Map.Entry<String, Category> e : resultChain){
             System.out.printf("/%s", e.getKey());

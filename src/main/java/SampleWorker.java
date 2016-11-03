@@ -6,8 +6,6 @@ import java.util.concurrent.*;
 
 public class SampleWorker implements Callable<Set<String>> {
 
-    static final long timeout = 10; //5 sec timeout
-
     static private class SamplePerQueryWorker implements Callable<String[]>{
 
         BingHandler bs;
@@ -28,8 +26,8 @@ public class SampleWorker implements Callable<Set<String>> {
     ExecutorService pool;
     List<SamplePerQueryWorker> tasks = new LinkedList<SamplePerQueryWorker>();
 
-    public SampleWorker(List<List<String>> _queries){
-        queries = _queries;
+    public SampleWorker(List<List<String>> queryList){
+        queries = queryList;
         pool = Executors.newFixedThreadPool(queries.size());
         for(List<String> q : queries){
             tasks.add(new SamplePerQueryWorker(q));
@@ -38,25 +36,24 @@ public class SampleWorker implements Callable<Set<String>> {
 
     @Override
     public Set<String> call() throws Exception {
-        Set<String> all_pages = new TreeSet<String>();
+        Set<String> allPages = new TreeSet<String>();
         List<Future<String[]>> ret = pool.invokeAll(tasks);
         pool.shutdownNow();
         Iterator<List<String>> i;
         Iterator<Future<String[]>> j;
-        for(i=queries.iterator(), j=ret.iterator();i.hasNext();){
+        for(i = queries.iterator(), j = ret.iterator(); i.hasNext() ; ){
             assert (j.hasNext());
             List<String> query = i.next();
             Future<String[]> f_pages = j.next();
             try{
                 String[] pages = f_pages.get();
                 for(String p : pages){
-                    all_pages.add(p);
+                    allPages.add(p);
                 }
-            }
-            catch(Exception e){
+            } catch(Exception e){
                 System.err.printf("Error %s\n", e.toString());
             }
         }
-        return all_pages;
+        return allPages;
     }
 }

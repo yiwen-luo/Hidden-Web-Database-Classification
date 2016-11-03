@@ -12,9 +12,9 @@ public class Classifier {
     private int tec;
 
     public Classifier(BingHandler bingHandler, double tes, int tec) {
-        this.bingHandler = bingHandler;
         this.tes = tes;
         this.tec = tec;
+        this.bingHandler = bingHandler;
     }
 
     public List<Map.Entry<String, Category>> classify(Category root) throws InterruptedException, ExecutionException {

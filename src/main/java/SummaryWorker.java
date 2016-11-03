@@ -5,16 +5,13 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class SummaryWorker implements Callable<Map<String, Set<String>>>{
-
-    static final long timeout = 10;
-
-    Set<String> pages;
     ExecutorService pool;
-    List<SummaryPerPageWorker> tasks = new LinkedList<SummaryPerPageWorker>();
+    List<SummaryPerPage> tasks = new LinkedList<SummaryPerPage>();
+    Set<String> pages;
 
-    static private class SummaryPerPageWorker implements Callable<Set<String>>{
+     private static class SummaryPerPage implements Callable<Set<String>>{
         String url;
-        public SummaryPerPageWorker(String _url){
+        public SummaryPerPage (String _url){
             url = _url;
         }
 
@@ -27,35 +24,28 @@ public class SummaryWorker implements Callable<Map<String, Set<String>>>{
     public SummaryWorker(Set<String> _pages){
         pages = _pages;
         pool = Executors.newFixedThreadPool(pages.size());
-        for(String p : pages) {
-            tasks.add(new SummaryPerPageWorker(p));
+        for(String page : pages) {
+            tasks.add(new SummaryPerPage(page));
         }
     }
 
     @Override
     public Map<String, Set<String>> call() throws Exception {
-        Map<String, Set<String>> summary = new TreeMap<String, Set<String>>();
         List<Future<Set<String>>> ret = pool.invokeAll(tasks);
         pool.shutdownNow();
+
         Iterator<String> i;
-        Iterator<Future<Set<String>>> j;
-        for(i=pages.iterator(), j=ret.iterator();i.hasNext();){
-            assert (j.hasNext());
+        Iterator<Future<Set<String>>> iterator;
+        Map<String, Set<String>> summary = new TreeMap<String, Set<String>>();
+
+        for(i = pages.iterator(), iterator = ret.iterator();i.hasNext();){
+            assert (iterator.hasNext());
             String page = i.next();
-            Future<Set<String>> f_words = j.next();
+            Future<Set<String>> wordSetIterator = iterator.next();
             try{
-                Set<String> words = f_words.get();
-                summary.put(page, words);
-                /*if(Main.DEBUG >= 2) {
-                    System.out.printf("[Summary] Processed %s summary: {", page);
-                    for (String w : words) {
-                        System.out.printf("%s ");
-                    }
-                    System.out.println("}");
-                }*/
-            }
-            catch(Exception e){
-                System.err.printf("[Summary] Error %s Processing %s\n", e.toString(), page);
+                summary.put(page, wordSetIterator.get());
+            } catch(Exception e) {
+                System.err.printf("Error %s Processing %s\n", e.toString(), page);
             }
         }
         return summary;

@@ -59,6 +59,8 @@ public class BingHandler {
         sb.append(host);
         sb.append("%20");
         for (Iterator<String> i = terms.iterator(); i.hasNext(); ) {
+            //testing
+
             sb.append(i.next());
             if (i.hasNext()) {
                 sb.append("%20");
@@ -67,6 +69,7 @@ public class BingHandler {
         sb.append("%27&$format=Atom&$top=");
         sb.append(TOPMAX);
         String _url = sb.toString();
+        //System.out.println(_url);
         URL url = new URL(_url);
         URLConnection url_connect = url.openConnection();
         url_connect.setRequestProperty("Authorization", auth);
