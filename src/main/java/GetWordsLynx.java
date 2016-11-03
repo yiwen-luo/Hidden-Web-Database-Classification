@@ -12,7 +12,7 @@ public class GetWordsLynx {
         StringBuffer buffer = new StringBuffer(buffersize);
 
         try {
-            String cmdline[] = {"/opt/local/bin/lynx", "--dump", url};
+            String cmdline[] = {"/usr/bin/lynx", "--dump", url};
             if (System.getProperty("os.name").split(" ")[0].toLowerCase().equals("mac")) {
                 cmdline[0] = "/usr/local/bin/lynx";
             }
