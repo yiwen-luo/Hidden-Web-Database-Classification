@@ -17,12 +17,13 @@ public class BingHandler {
     private byte[] credential;
     private String auth;
     private String host;
-    static final int topmax = 4;
+    private static final int TOPMAX = 4;
 
-    public BingHandler(String credential, String host) {
-        this.credential = Base64.encodeBase64((credential + ":" + credential).getBytes());
+
+    public BingHandler() {
+        this.credential = Base64.encodeBase64((Main.bingKey + ":" + Main.bingKey).getBytes());
         this.auth = "Basic " + new String(this.credential);
-        this.host = host;
+        this.host = Main.host;
     }
 
     public int getCount(List<String> terms) throws Exception {
@@ -64,7 +65,7 @@ public class BingHandler {
             }
         }
         sb.append("%27&$format=Atom&$top=");
-        sb.append(topmax);
+        sb.append(TOPMAX);
         String _url = sb.toString();
         URL url = new URL(_url);
         URLConnection url_connect = url.openConnection();
@@ -74,7 +75,7 @@ public class BingHandler {
         doc.getDocumentElement().normalize();
         NodeList entry_list = doc.getElementsByTagName("entry");
 
-        assert (entry_list.getLength() <= topmax);
+        assert (entry_list.getLength() <= TOPMAX);
         String[] ret = new String[entry_list.getLength()];
 
         for (int i = 0, j = entry_list.getLength(); i != j; ++i) {
@@ -85,6 +86,7 @@ public class BingHandler {
             NodeList urls = ele_url.getChildNodes();
             ret[i] = urls.item(0).getNodeValue().trim().replaceAll("<b>", "").replaceAll("</b>", "");
         }
+
         return ret;
     }
 }

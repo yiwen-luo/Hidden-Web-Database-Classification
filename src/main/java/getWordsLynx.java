@@ -79,10 +79,6 @@ public class getWordsLynx {
     }
 
     public static void main(String args[]) {
-        // for testing
-        Set<String> set = runLynx("http://www.google.com/imghp?hl=en&tab=wi");
-        for (String str : set) {
-            System.out.println(str);
-        }
+
     }
 }
