@@ -1,103 +1,89 @@
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 public class Summary {
     public static void generateSummary(List<Map.Entry<String, Category>> chain) throws Exception {
-        Category category;
-        String categoryName;
-        Set<String> pageSet = new TreeSet<String>();
-        List<SampleWorker> tasks = new LinkedList<SampleWorker>();
-        Iterator<Map.Entry<String, Category>> mapIterator;
-        Iterator<Future<Set<String>>> iterator;
-        Iterator<Set<String>> pageSetIterator;
-        Map.Entry<String, Category> subEntry;
+        Set<String> all_pages = new TreeSet<String>();
 
-        category = Main.root;
-        mapIterator = chain.iterator();
-        while (mapIterator.hasNext()) {
-            if (category.subcatgories == null) {
+        List<SampleWorker> tasks = new LinkedList<SampleWorker>();
+
+        Category c;
+        String categoryName;
+        Iterator<Map.Entry<String, Category>> i;
+        Iterator<Future<Set<String>>> iterator;
+        Iterator<Set<String>> setIterator;
+        Map.Entry<String, Category> next_sub;
+
+        for (c = Main.root, categoryName = "Root", i = chain.iterator(); ; next_sub = i.next(), c = next_sub.getValue(), categoryName = next_sub.getKey()) {
+            if (c.subcatgories == null) {
                 break;
             }
             List<List<String>> queries = new LinkedList<List<String>>();
-            for (Map.Entry<String, Category> sub : category.subcatgories.entrySet()) {
+            for (Map.Entry<String, Category> sub : c.subcatgories.entrySet()) {
                 queries.addAll(sub.getValue().queries);
             }
             tasks.add(new SampleWorker(queries));
-            subEntry = mapIterator.next();
-            category = subEntry.getValue();
-        }
 
+            if (!i.hasNext()) {
+                break;
+            }
+        }
         ExecutorService pool = Executors.newFixedThreadPool(tasks.size());
+
         List<Future<Set<String>>> f_urls = pool.invokeAll(tasks);
         List<Set<String>> samples = new LinkedList<Set<String>>();
         pool.shutdownNow();
 
         Set<String> prev = null;
-        categoryName = "Root";
-        mapIterator = chain.iterator();
-        iterator = f_urls.iterator();
-
-        while (iterator.hasNext()) {
+        for (c = Main.root, categoryName = "Root", i = chain.iterator(), iterator = f_urls.iterator(); ; next_sub = i.next(), categoryName = next_sub.getKey(), c = next_sub.getValue()) {
             Set<String> pages = iterator.next().get();
+
+            System.out.printf("[Sample]: %d pages for Category <%s>\n", pages.size(), categoryName);
+
             if (prev != null) {
                 prev.addAll(pages);
             }
             samples.add(pages);
-            pageSet.addAll(pages);
+            all_pages.addAll(pages);
             prev = pages;
-            subEntry = mapIterator.next();
-            categoryName = subEntry.getKey();
+
+            if (!iterator.hasNext()) {
+                break;
+            }
         }
+        Map<String, Set<String>> page_words = new SummaryWorker(all_pages).call();
 
-        Map<String, Set<String>> pageWords = new SummaryWorker(pageSet).call();
-
-        categoryName = "Root";
-        mapIterator = chain.iterator();
-        pageSetIterator = samples.iterator();
-
-        while (pageSetIterator.hasNext()) {
-            Set<String> pages = pageSetIterator.next();
-            Map<String, Integer> freqMap = new TreeMap<String, Integer>();
-            System.out.printf("Fetched pages for %s (%d pages)\n", categoryName, pages.size());
-
-            for (String str : pages) {
-                Set<String> words = pageWords.get(str);
+        for (c = Main.root, categoryName = "Root", i = chain.iterator(), setIterator = samples.iterator(); ; next_sub = i.next(), categoryName = next_sub.getKey(), c = next_sub.getValue()) {
+            Set<String> pages = setIterator.next();
+            Map<String, Integer> freq_map = new TreeMap<String, Integer>();
+            System.out.printf("[Summary]: Fetched pages for <%s> (%d pages)\n", categoryName, pages.size());
+            for (String s : pages) {
+                Set<String> words = page_words.get(s);
                 if (words == null) {
-                    System.out.printf("\tERROR: %s\n", str);
+                    System.out.printf("\tERROR: %s\n", s);
                 } else {
-                    System.out.printf("Getting page: %s\n", str);
-                    for (String word : words) {
-                        Integer freq = freqMap.get(word);
+                    System.out.printf("\tSUCCESS: %s\n", s);
+                    for (String w : words) {
+                        Integer freq = freq_map.get(w);
                         if (freq != null) {
-                            freqMap.put(word, freq + 1);
+                            freq_map.put(w, freq + 1);
                         } else {
-                            freqMap.put(word, 1);
+                            freq_map.put(w, 1);
                         }
                     }
                 }
-
             }
-
-            PrintStream output = new PrintStream(new FileOutputStream(new File(categoryName + "-" + Main.host + ".txt")));
-
-            for (Map.Entry<String, Integer> freqEntry : freqMap.entrySet()) {
-                output.printf("%s#%d\n", freqEntry.getKey(), freqEntry.getValue());
+            PrintStream ps = new PrintStream(new FileOutputStream(new File(categoryName + "-" + Main.host + ".txt")));
+            for (Map.Entry<String, Integer> e : freq_map.entrySet()) {
+                ps.printf("%s#%d\n", e.getKey(), e.getValue());
             }
-
-            subEntry = mapIterator.next();
-            categoryName = subEntry.getKey();
+            if(!setIterator.hasNext()){
+                break;
+            }
         }
+
     }
 }
-
