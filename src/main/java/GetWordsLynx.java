@@ -13,9 +13,6 @@ public class GetWordsLynx {
 
         try {
             String cmdline[] = {"/usr/bin/lynx", "--dump", url};
-            if (System.getProperty("os.name").split(" ")[0].toLowerCase().equals("mac")) {
-                cmdline[0] = "/usr/local/bin/lynx";
-            }
             Process p = Runtime.getRuntime().exec(cmdline);
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
