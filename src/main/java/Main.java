@@ -20,17 +20,17 @@ public class Main {
         CategoryHandler categoryHandler = new CategoryHandler("Root", 2);
         root = categoryHandler.parseCategories();
 
-        // Classify root
+        // Classification
+        System.out.println("Classifying...");
         Classifier classifier = new Classifier(tes, tec);
         List<Map.Entry<String, Category>> resultChain = classifier.classify(root);
-        System.out.println();
-        System.out.print("Site classified as Root");
+        System.out.print("\nClassification:\nRoot");
         for (Map.Entry<String, Category> e : resultChain) {
             System.out.printf("/%s", e.getKey());
         }
-        System.out.println();
-        System.out.println("\nExtracting topic content summaries...");
-        Summary.generateSummary(resultChain);
+        System.out.println("\n\nExtracting topic content summaries...");
 
+        // Summary
+        Summary.generateSummary(resultChain);
     }
 }

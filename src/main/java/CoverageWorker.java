@@ -35,7 +35,7 @@ public class CoverageWorker implements Callable<Integer> {
                 Integer count = f_count.get();
                 coverage += count;
             } catch (Exception e) {
-                System.err.printf("[Coverage]: error %s processing query {", e.toString());
+                System.err.printf("Error %s processing query {", e.toString());
                 for (String s : query) {
                     System.err.printf("%s ", s);
                 }

@@ -23,7 +23,7 @@ public class SummaryWorker implements Callable<Map<String, Set<String>>> {
 
         @Override
         public Set<String> call() throws Exception {
-            return getWordsLynx.runLynx(url);
+            return GetWordsLynx.runLynx(url);
         }
     }
 

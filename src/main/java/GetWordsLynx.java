@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
-public class getWordsLynx {
+public class GetWordsLynx {
 
     public static Set<String> runLynx(String url) {
 
@@ -12,8 +12,10 @@ public class getWordsLynx {
         StringBuffer buffer = new StringBuffer(buffersize);
 
         try {
-
-            String cmdline[] = {"/opt/local/bin/lynx", "--dump", url };
+            String cmdline[] = {"/opt/local/bin/lynx", "--dump", url};
+            if (System.getProperty("os.name").split(" ")[0].toLowerCase().equals("mac")) {
+                cmdline[0] = "/usr/local/bin/lynx";
+            }
             Process p = Runtime.getRuntime().exec(cmdline);
             BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -50,7 +52,7 @@ public class getWordsLynx {
                     }
                     continue;
                 } else {
-                    if (Character.isLetter(buffer.charAt(i)) && buffer.charAt(i)<128) {
+                    if (Character.isLetter(buffer.charAt(i)) && buffer.charAt(i) < 128) {
                         output.append(Character.toLowerCase(buffer.charAt(i)));
                         wrotespace = false;
                     } else {

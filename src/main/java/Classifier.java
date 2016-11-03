@@ -60,8 +60,9 @@ public class Classifier {
         }
         for (i = categories.iterator(), k = 0; i.hasNext(); ++k) {
             Map.Entry<String, Category> sub_category = i.next();
-            System.out.printf("[Classify]: Category <%s> Coverage %d Specificity %f\n", sub_category.getKey(),
-                    coverages[k], (double) coverages[k] / (double) total_coverage * totalSpec);
+            System.out.println("Specificity for category: " + sub_category.getKey() + " is " +
+                    (double) coverages[k] / (double) total_coverage * totalSpec);
+            System.out.println("Coverage for category: " + sub_category.getKey() + " is " + coverages[k]);
         }
 
         double specificity = (double) max_coverage / (double) total_coverage * totalSpec;
