@@ -12,11 +12,11 @@ public class CoverageWorker implements Callable<Integer> {
     private ExecutorService pool;
     private List<CoveragePerQueryWorker> tasks = new LinkedList<CoveragePerQueryWorker>();
 
-    public CoverageWorker(BingHandler bingHandler, List<List<String>> queries) {
+    public CoverageWorker(List<List<String>> queries) {
         this.queries = queries;
         pool = Executors.newFixedThreadPool(queries.size());
         for (List<String> query : queries) {
-            tasks.add(new CoveragePerQueryWorker(bingHandler, query));
+            tasks.add(new CoveragePerQueryWorker(query));
         }
     }
 
@@ -47,11 +47,10 @@ public class CoverageWorker implements Callable<Integer> {
 
     static private class CoveragePerQueryWorker implements Callable<Integer> {
 
-        private BingHandler bingHandler;
+        private BingHandler bingHandler = new BingHandler();
         private List<String> query;
 
-        public CoveragePerQueryWorker(BingHandler bingHandler, List<String> query) {
-            this.bingHandler = bingHandler;
+        public CoveragePerQueryWorker(List<String> query) {
             this.query = query;
         }
 

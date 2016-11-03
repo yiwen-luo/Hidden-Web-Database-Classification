@@ -1,17 +1,23 @@
-/**
- * Created by zhangzhiwang on 11/2/16.
- */
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class SummaryWorker implements Callable<Map<String, Set<String>>>{
+public class SummaryWorker implements Callable<Map<String, Set<String>>> {
     ExecutorService pool;
     List<SummaryPerPage> tasks = new LinkedList<SummaryPerPage>();
     Set<String> pages;
 
-     private static class SummaryPerPage implements Callable<Set<String>>{
+    private static class SummaryPerPage implements Callable<Set<String>> {
         String url;
-        public SummaryPerPage (String _url){
+
+        public SummaryPerPage(String _url) {
             url = _url;
         }
 
@@ -21,10 +27,10 @@ public class SummaryWorker implements Callable<Map<String, Set<String>>>{
         }
     }
 
-    public SummaryWorker(Set<String> _pages){
+    public SummaryWorker(Set<String> _pages) {
         pages = _pages;
         pool = Executors.newFixedThreadPool(pages.size());
-        for(String page : pages) {
+        for (String page : pages) {
             tasks.add(new SummaryPerPage(page));
         }
     }
@@ -38,13 +44,13 @@ public class SummaryWorker implements Callable<Map<String, Set<String>>>{
         Iterator<Future<Set<String>>> iterator;
         Map<String, Set<String>> summary = new TreeMap<String, Set<String>>();
 
-        for(i = pages.iterator(), iterator = ret.iterator();i.hasNext();){
+        for (i = pages.iterator(), iterator = ret.iterator(); i.hasNext(); ) {
             assert (iterator.hasNext());
             String page = i.next();
             Future<Set<String>> wordSetIterator = iterator.next();
-            try{
+            try {
                 summary.put(page, wordSetIterator.get());
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.err.printf("Error %s Processing %s\n", e.toString(), page);
             }
         }

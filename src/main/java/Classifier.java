@@ -1,20 +1,23 @@
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class Classifier {
 
-    private BingHandler bingHandler;
     private double tes;
     private int tec;
 
-    public Classifier(BingHandler bingHandler, double tes, int tec) {
+    public Classifier(double tes, int tec) {
         this.tes = tes;
         this.tec = tec;
-        this.bingHandler = bingHandler;
     }
 
     public List<Map.Entry<String, Category>> classify(Category root) throws InterruptedException, ExecutionException {
@@ -33,7 +36,7 @@ public class Classifier {
         List<CoverageWorker> tasks = new LinkedList<CoverageWorker>();
         Iterator<Map.Entry<String, Category>> i;
         for (i = categories.iterator(); i.hasNext(); ) {
-            tasks.add(new CoverageWorker(bingHandler, i.next().getValue().queries));
+            tasks.add(new CoverageWorker(i.next().getValue().queries));
         }
         List<Future<Integer>> futures = pool.invokeAll(tasks);
         pool.shutdownNow();
